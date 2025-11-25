@@ -12,7 +12,26 @@ st.set_page_config(
 
 # --- 1. SETUP & AUTH ---
 st.sidebar.title("⚙️ Configuration")
-api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
+
+# A. Check if Key exists in Secrets (Environment Variables)
+if "GEMINI_API_KEY" in st.secrets:
+    st.sidebar.success("✅ API Key loaded from Secrets")
+    secret_key = st.secrets["GEMINI_API_KEY"]
+else:
+    secret_key = None
+
+# B. Allow Manual Entry (Overrides Secret if typed)
+manual_key = st.sidebar.text_input("Enter Gemini API Key (Optional)", type="password")
+
+# C. Determine which key to use
+def get_api_key():
+    if manual_key:
+        return manual_key
+    if secret_key:
+        return secret_key
+    return None
+
+api_key = get_api_key()
 
 # --- 2. OBSERVABILITY (REQUIRED FEATURE) ---
 def log_trace(step, details):
